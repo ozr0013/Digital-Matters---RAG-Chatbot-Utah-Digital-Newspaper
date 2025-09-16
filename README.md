@@ -5,6 +5,7 @@
 [![Build](https://img.shields.io/badge/Build-Passing-brightgreen)](#)
 
 **Author:** Omar Rizwan  
+**Manager:** Rebekah Cummings
 **Organization:** Digital Matters, University of Utah  
 **Project Type:** Retrieval-Augmented Generation (RAG) Chatbot  
 **Goal:** Help students, researchers, and the public explore the Utah Digital Newspapers archive through a conversational AI assistant.
