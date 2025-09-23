@@ -1,0 +1,6 @@
+// These are all the required libraries needed for the project
+requests
+pandas
+numpy
+faiss-cpu
+langchain
