@@ -1,6 +1,16 @@
-// These are all the required libraries needed for the project
 requests
 pandas
 numpy
+nltk
+tqdm
+openai
+sentence-transformers
 faiss-cpu
+pinecone-client
+weaviate-client
+qdrant-client
 langchain
+chromadb
+flask
+fastapi
+streamlit
