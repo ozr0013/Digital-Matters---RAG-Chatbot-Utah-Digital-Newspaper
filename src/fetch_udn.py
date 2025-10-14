@@ -12,7 +12,7 @@ def fetch_documents(start=0, limit=100):
     return resp.json()
 
 if __name__ == "__main__":
-    # Fetch first 10 documents
+    # Fetch first 100 documents
     data = fetch_documents(0, 100)
 
     # Save raw JSON
@@ -24,4 +24,4 @@ if __name__ == "__main__":
     df = pd.DataFrame(docs)
     df.to_csv("udn_docs_sample.csv", index=False)
 
-    print("✅ Data saved: udn_docs_sample.json & udn_docs_sample.csv")
+    print("Data saved: udn_docs_sample.json & udn_docs_sample.csv")

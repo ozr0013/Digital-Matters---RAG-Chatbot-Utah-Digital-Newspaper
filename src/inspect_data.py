@@ -12,14 +12,14 @@ def inspect_csv(file_path, nrows=5, chunksize=100000):
     try:
         # Option A: Try reading just first N rows
         df = pd.read_csv(file_path, nrows=nrows)
-        print("✅ Preview using nrows")
+        print("Preview using nrows")
         print("Columns:", df.columns.tolist())
         print(df.head())
     except Exception as e:
-        print("⚠️ Direct nrows read failed, trying chunks...")
+        print("Direct nrows read failed, trying chunks...")
         # Option B: Stream in chunks if nrows fails
         for chunk in pd.read_csv(file_path, chunksize=chunksize):
-            print("✅ Preview using chunks")
+            print("Preview using chunks")
             print("Columns:", chunk.columns.tolist())
             print(chunk.head())
             break
