@@ -1,79 +1,75 @@
 import pandas as pd
-from typing import List, Dict
+import os
 
-def chunk_text(text: str, chunk_size: int = 500, overlap: int = 50) -> List[str]:
-    """
-    Splits text into overlapping chunks.
-    
-    Args:
-        text (str): The input text to split.
-        chunk_size (int): Max number of characters per chunk.
-        overlap (int): Overlap between chunks to preserve context.
-    
-    Returns:
-        List[str]: A list of text chunks.
-    """
-    if not isinstance(text, str) or not text.strip():
+def chunk_text(text: str, chunk_size: int = 500, overlap: int = 50):
+    """Split text into overlapping chunks."""
+    if not isinstance(text, str) or not text.strip() or text.lower() == "nan":
         return []
-
     chunks = []
     start = 0
     while start < len(text):
         end = min(start + chunk_size, len(text))
         chunks.append(text[start:end])
-        start += chunk_size - overlap  # move window forward with overlap
-
+        start += chunk_size - overlap
     return chunks
 
 
-def process_csv(input_csv: str, output_csv: str, text_col: str = "ocr_t", sample: bool = False, sample_size: int = 100) -> None:
-    """
-    Reads the UDN CSV, chunks the OCR text, and saves a new CSV of chunks.
-    
-    Args:
-        input_csv (str): Path to input CSV (the Solr dump).
-        output_csv (str): Path to output CSV with chunks.
-        text_col (str): Column name containing text.
-        sample (bool): Whether to only process a sample of rows.
-        sample_size (int): Number of rows to sample if sample=True.
-    """
-    print(f"📖 Reading data from {input_csv} ...")
-    
-    if sample:
-        df = pd.read_csv(input_csv, nrows=sample_size, low_memory=False)
-        print(f"⚡ Running in SAMPLE mode → using first {sample_size} rows")
-    else:
-        df = pd.read_csv(input_csv, low_memory=False)
-        print(f"⚡ Running in FULL mode → processing {len(df)} rows")
+def process_csv_streaming(input_csv, output_dir, text_col="ocr_t", chunk_size_chars=500, overlap=50, rows_per_file=100000):
+    """Stream through huge CSV, chunk text, and save into multiple smaller CSVs."""
+    os.makedirs(output_dir, exist_ok=True)
 
-    records = []
-    for _, row in df.iterrows():
-        text = row.get(text_col, "")
-        chunks = chunk_text(str(text))
-        for i, chunk in enumerate(chunks):
-            records.append({
-                "id": row.get("id", None),
-                "article_title": row.get("article_title_t", None),
-                "date": row.get("date_tdt", None),
-                "paper": row.get("paper_t", None),
-                "chunk_index": i,
-                "text_chunk": chunk
-            })
+    reader = pd.read_csv(input_csv, chunksize=10000, low_memory=False)
+    file_index = 0
+    total_chunks = 0
+    buffer = []
 
-    chunk_df = pd.DataFrame(records)
-    print(f"✅ Created {len(chunk_df)} chunks from {len(df)} rows")
+    for batch_i, df in enumerate(reader):
+        print(f"🔹 Processing batch {batch_i} ...")
 
-    chunk_df.to_csv(output_csv, index=False)
-    print(f"💾 Saved to {output_csv}")
+        for _, row in df.iterrows():
+            text = str(row.get(text_col, "") or "")
+            if not text.strip() or text.lower() == "nan":
+                continue
+
+            # chunk the article text
+            chunks = chunk_text(text, chunk_size_chars, overlap)
+            for j, chunk in enumerate(chunks):
+                buffer.append({
+                    "id": row.get("id"),
+                    "article_title": row.get("article_title_t"),
+                    "date": row.get("date_tdt"),
+                    "paper": row.get("paper_t"),
+                    "chunk_index": j,
+                    "chunk_text": chunk
+                })
+                total_chunks += 1
+
+            # when buffer is large enough, save to file
+            if len(buffer) >= rows_per_file:
+                out_file = os.path.join(output_dir, f"udn_chunks_part{file_index}.csv")
+                pd.DataFrame(buffer).to_csv(out_file, index=False)
+                print(f"✅ Wrote {len(buffer)} chunks → {out_file}")
+                buffer.clear()
+                file_index += 1
+
+    # save leftovers at the end
+    if buffer:
+        out_file = os.path.join(output_dir, f"udn_chunks_part{file_index}.csv")
+        pd.DataFrame(buffer).to_csv(out_file, index=False)
+        print(f"✅ Wrote remaining {len(buffer)} chunks → {out_file}")
+
+    print(f"🎉 Finished. Total chunks created: {total_chunks}")
 
 
 if __name__ == "__main__":
-    # Example usage (adjust path to your udn.csv on D: drive)
-    input_path = r"D:\UDN_Project\udn.csv"
-    output_path = r"D:\UDN_Project\udn_chunks.csv"
+    input_path = r"D:\UDN_Project\udn.csv"         # path to your Solr export
+    output_dir = r"D:\UDN_Project\chunked"         # output directory for smaller files
 
-    # 🔹 Run in SAMPLE mode first for safety
-    #process_csv(input_path, output_path, sample=True, sample_size=100)
-
-    # 🔹 Once confirmed, switch to full dataset:
-    process_csv(input_path, output_path, sample=False)
+    process_csv_streaming(
+        input_csv=input_path,
+        output_dir=output_dir,
+        text_col="ocr_t",
+        chunk_size_chars=500,
+        overlap=50,
+        rows_per_file=100000
+    )
