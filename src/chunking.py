@@ -3,7 +3,7 @@ import os
 
 def chunk_text(text: str, chunk_size: int = 500, overlap: int = 50):
     """Split text into overlapping chunks."""
-    if not isinstance(text, str) or not text.strip() or text.lower() == "nan":
+    if not isinstance(text, str) or not text.strip() or text.lower() == "nan": # handle invalid text and NaN and making sure text is a string and not NaN.
         return []
     chunks = []
     start = 0
@@ -48,7 +48,7 @@ def process_csv_streaming(input_csv, output_dir, text_col="ocr_t", chunk_size_ch
             if len(buffer) >= rows_per_file:
                 out_file = os.path.join(output_dir, f"udn_chunks_part{file_index}.csv")
                 pd.DataFrame(buffer).to_csv(out_file, index=False)
-                print(f"✅ Wrote {len(buffer)} chunks → {out_file}")
+                print(f" Wrote {len(buffer)} chunks → {out_file}")
                 buffer.clear()
                 file_index += 1
 
@@ -56,9 +56,9 @@ def process_csv_streaming(input_csv, output_dir, text_col="ocr_t", chunk_size_ch
     if buffer:
         out_file = os.path.join(output_dir, f"udn_chunks_part{file_index}.csv")
         pd.DataFrame(buffer).to_csv(out_file, index=False)
-        print(f"✅ Wrote remaining {len(buffer)} chunks → {out_file}")
+        print(f" Wrote remaining {len(buffer)} chunks → {out_file}")
 
-    print(f"🎉 Finished. Total chunks created: {total_chunks}")
+    print(f" Finished. Total chunks created: {total_chunks}")
 
 
 if __name__ == "__main__":
