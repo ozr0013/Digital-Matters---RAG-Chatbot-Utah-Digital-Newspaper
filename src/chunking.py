@@ -16,7 +16,7 @@ def chunk_text(text: str, chunk_size: int = 500, overlap: int = 50):
 
 def process_csv_streaming(input_csv, output_dir, text_col="ocr_t", chunk_size_chars=500, overlap=50, rows_per_file=100000):
     """Stream through huge CSV, chunk text, and save into multiple smaller CSVs."""
-    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True) # ensure output directory exists, if not create it.
 
     reader = pd.read_csv(input_csv, chunksize=10000, low_memory=False)
     file_index = 0
@@ -24,7 +24,7 @@ def process_csv_streaming(input_csv, output_dir, text_col="ocr_t", chunk_size_ch
     buffer = []
 
     for batch_i, df in enumerate(reader):
-        print(f"🔹 Processing batch {batch_i} ...")
+        print(f"Processing batch {batch_i} ...")
 
         for _, row in df.iterrows():
             text = str(row.get(text_col, "") or "")

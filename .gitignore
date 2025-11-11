@@ -1,0 +1,52 @@
+# --- Python Virtual Environments ---
+venv/
+venv312/
+.env/
+.venv/
+
+# --- Python Cache Files ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# --- System / Editor Files ---
+.DS_Store
+.vscode/
+.idea/
+
+# --- Large Data / Model Artifacts ---
+*.index
+*.bin
+*.pt
+*.npy
+*.npz
+*.csv
+*.tsv
+*.jsonl
+*.zip
+*.tar
+*.gz
+.cache/
+
+# --- Project-specific Data Folders ---
+chunked/
+data/
+UDN_Project/
+embeddings/
+chroma_db/
+
+# --- Logs / Temporary Files ---
+logs/
+*.log
+tmp/
+temp/
+
+# --- Ollama / HuggingFace / FAISS Cache ---
+ollama/
+hf_cache/
+models/
+checkpoints/
+
+# --- Jupyter / IPython ---
+.ipynb_checkpoints/

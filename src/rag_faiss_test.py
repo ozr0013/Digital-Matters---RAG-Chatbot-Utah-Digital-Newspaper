@@ -48,7 +48,8 @@ def query_ollama_rag(question):
     
     response = ollama.chat(model=MODEL_NAME, messages=[{"role": "user", "content": prompt}])
     answer = response["message"]["content"]
-    print("\ Ollama Answer:\n", answer)
+    print("Ollama Answer:\n", answer)
+
     return answer
 
 # ---------------------------------

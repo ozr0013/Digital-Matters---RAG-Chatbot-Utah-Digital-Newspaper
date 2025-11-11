@@ -15,10 +15,10 @@ BATCH_SIZE = 8                             # start batch size (auto adjusts if O
 os.makedirs(save_dir, exist_ok=True)
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-print(f"🔹 Using device: {device}")
-model = SentenceTransformer('all-MiniLM-L6-v2', device=device)
+print(f" Using device: {device}")
+model = SentenceTransformer('all-MiniLM-L6-v2', device=device) # load all-MiniLM-L6-v2 model with 384-dim embeddings
 dim = 384
-index = faiss.IndexFlatL2(dim)
+index = faiss.IndexFlatL2(dim) #initializing FAISS index(each text chunk will be represented as a vector of dimension 384 for similarity search)
 
 # ---- Helper to extract numeric index for sorting ----
 def extract_num(filename):
@@ -44,7 +44,7 @@ start_time = time.time()
 
 for i, f in enumerate(files):
     path = os.path.join(base_dir, f)
-    print(f"\n🔹 Processing {f} ({i+1}/{len(files)}) ...")
+    print(f"\nProcessing {f} ({i+1}/{len(files)}) ...")
 
     # ---- Load CSV safely ----
     try:
