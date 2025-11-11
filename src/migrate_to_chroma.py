@@ -66,7 +66,7 @@ for idx, npy_file in enumerate(files, 1):
         try:
             existing = collection.get(ids=[ids[0]])
             if existing and existing.get("ids"):
-                print(f"⏩ {npy_file} already in DB, skipping.")
+                print(f" {npy_file} already in DB, skipping.")
                 continue
         except Exception:
             pass
@@ -81,7 +81,7 @@ for idx, npy_file in enumerate(files, 1):
         eta = elapsed / idx * (len(files) - idx)
         print(f" {npy_file}: added {added_now:,} chunks "
               f"({idx}/{len(files)}) | total {total_added:,} | "
-              f"⏱ {elapsed:.1f} min elapsed, ~{eta:.1f} min left")
+              f"{elapsed:.1f} min elapsed, ~{eta:.1f} min left")
     except Exception as e:
         print(f"Error on {npy_file}: {e}")
 
