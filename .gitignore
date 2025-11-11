@@ -1,0 +1,22 @@
+# Virtual environment
+venv312/
+__pycache__/
+
+# Large data and local cache
+embeddings/
+chroma/
+*.npy
+*.npz
+*.faiss
+*.pkl
+
+# Logs and temp
+*.log
+*.tmp
+.env*
+
+# Editor/system files
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
