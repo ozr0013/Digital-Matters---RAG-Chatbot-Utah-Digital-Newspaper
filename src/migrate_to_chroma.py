@@ -1,4 +1,6 @@
 import os
+os.environ["ANONYMIZED_TELEMETRY"] = "false"
+os.environ["CHROMA_TELEMETRY"] = "false"
 import time
 import numpy as np
 import pandas as pd
@@ -8,15 +10,23 @@ from chromadb.utils import embedding_functions
 # ------------------------------------------
 # CONFIG
 # ------------------------------------------
-CHUNK_DIR = r"D:\UDN_Project\chunked"
-EMB_DIR   = r"D:\UDN_Project\embeddings"
-CHROMA_PATH = r"D:\UDN_Project\chroma_db"
+CHUNK_DIR = r"E:\UDN_Project\chunked"
+EMB_DIR   = r"E:\UDN_Project\embeddings"
+CHROMA_PATH = r"E:\UDN_Project\chroma_db"
 COLLECTION_NAME = "udn_archive"
 
 # ------------------------------------------
 # SETUP
 # ------------------------------------------
-client = chromadb.PersistentClient(path=CHROMA_PATH)
+from chromadb.config import Settings
+
+client = chromadb.Client(
+    Settings(
+        persist_directory=CHROMA_PATH,
+        anonymized_telemetry=False
+    )
+)
+
 embedding_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
     model_name="all-MiniLM-L6-v2"
 )

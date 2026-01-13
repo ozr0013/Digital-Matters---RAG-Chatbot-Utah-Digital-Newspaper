@@ -12,5 +12,6 @@ qdrant-client
 langchain
 chromadb
 flask
+flask-cors
 fastapi
 streamlit
