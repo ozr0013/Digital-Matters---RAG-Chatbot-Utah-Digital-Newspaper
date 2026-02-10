@@ -19,7 +19,6 @@ __pycache__/
 .idea/
 
 # --- Large Data / Model Artifacts ---
-*.index
 *.bin
 *.pt
 *.npy
@@ -34,10 +33,15 @@ __pycache__/
 
 # --- Project-specific Data Folders ---
 chunked/
-data/
 UDN_Project/
 embeddings/
 chroma_db/
+
+# --- Lite deploy data (allow these) ---
+!data/
+data/*
+!data/lite.index
+!data/lite.db
 
 # --- Logs / Temporary Files ---
 logs/

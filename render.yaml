@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: udn-chatbot
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --timeout 120 --workers 1
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: LLM_BACKEND
+        value: groq
+      - key: PYTHON_VERSION
+        value: "3.11.11"
