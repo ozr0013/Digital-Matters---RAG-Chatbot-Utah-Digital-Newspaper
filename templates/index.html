@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital Matters - Utah Digital Newspapers RAG Chatbot</title>
+    <title>Utah Digital Newspapers Archive</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -13,11 +13,8 @@
         <div class="chat-header">
             <div class="header-content">
                 <div class="header-title">
-                    <h1>
-                        <i class="fas fa-newspaper"></i>
-                        Utah Digital Newspapers
-                    </h1>
-                    <p class="subtitle">AI-Powered Archive Explorer</p>
+                    <h1>Utah Digital Newspapers</h1>
+                    <p class="tagline">Exploring Utah's Historical Record</p>
                 </div>
                 <button class="menu-button" id="menuButton">
                     <i class="fas fa-bars"></i>
@@ -25,56 +22,53 @@
             </div>
         </div>
 
-        <!-- Main Chat Area -->
+        <!-- Main Content Area -->
         <div class="chat-main">
-            <!-- Welcome Screen / Messages Area -->
+            <!-- Welcome Screen / Results Area -->
             <div class="chat-messages" id="chatMessages">
                 <div class="welcome-container">
-                    <div class="welcome-icon">
-                        <i class="fas fa-book-open"></i>
-                    </div>
-                    <h2>Welcome to the Utah Digital Newspapers Chatbot</h2>
-                    <p>Ask questions about historical articles from Utah's digital newspaper archive.</p>
-                    
+                    <h2>Discover Utah's Past</h2>
+                    <p class="welcome-description">
+                        Search through historical newspaper articles from across Utah.
+                        This archive contains <em>thousands of digitized pages</em> spanning
+                        over a century of local journalism, community stories, and historical events.
+                    </p>
+
                     <div class="example-queries">
-                        <p class="examples-title">Try asking:</p>
-                        <div class="example-buttons">
-                            <button class="example-btn" onclick="setQuery('What articles mention women\'s suffrage in Utah?')">
-                                <i class="fas fa-search"></i>
-                                Women's Suffrage
+                        <p class="examples-title">Try searching for</p>
+                        <div class="example-links">
+                            <button class="example-link" onclick="setQuery('What articles mention women\'s suffrage in Utah?')">
+                                Women's suffrage movement in Utah
                             </button>
-                            <button class="example-btn" onclick="setQuery('Find articles about the 1918 Spanish flu in Salt Lake City')">
-                                <i class="fas fa-virus"></i>
-                                Spanish Flu 1918
+                            <button class="example-link" onclick="setQuery('Find articles about the 1918 Spanish flu in Salt Lake City')">
+                                The 1918 Spanish flu in Salt Lake City
                             </button>
-                            <button class="example-btn" onclick="setQuery('Show me mining related articles from the 1900s')">
-                                <i class="fas fa-pickaxe"></i>
-                                Mining Articles
+                            <button class="example-link" onclick="setQuery('Show me mining related articles from the 1900s')">
+                                Early 1900s mining industry coverage
                             </button>
-                            <button class="example-btn" onclick="setQuery('What newspapers covered the first transcontinental railroad?')">
-                                <i class="fas fa-train"></i>
-                                Railroad History
+                            <button class="example-link" onclick="setQuery('What newspapers covered the first transcontinental railroad?')">
+                                Transcontinental railroad completion
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Input Area -->
+            <!-- Search Input Area -->
             <div class="chat-input-area">
+                <label class="input-label" for="messageInput">Search the Archive</label>
                 <div class="input-wrapper">
-                    <input 
-                        type="text" 
-                        id="messageInput" 
-                        class="message-input" 
-                        placeholder="Ask a question about Utah newspapers..."
+                    <input
+                        type="text"
+                        id="messageInput"
+                        class="message-input"
+                        placeholder="Enter your search query..."
                         autocomplete="off"
                     >
                     <button id="sendButton" class="send-button" onclick="sendMessage()">
-                        <i class="fas fa-paper-plane"></i>
+                        Search
                     </button>
                 </div>
-                <p class="input-hint">Press Enter to send or click the send button</p>
             </div>
         </div>
     </div>
@@ -82,15 +76,15 @@
     <!-- Sidebar for Mobile Menu -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h3>Digital Matters</h3>
+            <h3>About the Archive</h3>
             <button class="close-button" onclick="closeSidebar()">
                 <i class="fas fa-times"></i>
             </button>
         </div>
         <div class="sidebar-content">
             <div class="sidebar-section">
-                <h4>About This Chatbot</h4>
-                <p>Explore the Utah Digital Newspapers archive using AI-powered semantic search.</p>
+                <h4>Utah Digital Newspapers</h4>
+                <p>Explore Utah's rich historical record through digitized newspaper archives using AI-powered semantic search.</p>
             </div>
             <div class="sidebar-section">
                 <h4>Features</h4>
@@ -98,16 +92,16 @@
                     <li>Natural language search</li>
                     <li>Semantic document retrieval</li>
                     <li>Source citations</li>
-                    <li>Historical newspaper archive</li>
+                    <li>Historical context</li>
                 </ul>
             </div>
             <div class="sidebar-section">
-                <h4>Organization</h4>
+                <h4>Provided by</h4>
                 <p><strong>Digital Matters</strong></p>
                 <p>University of Utah</p>
             </div>
             <button class="clear-button" onclick="clearChat()">
-                <i class="fas fa-trash"></i> Clear Chat History
+                <i class="fas fa-trash"></i> Clear Search History
             </button>
         </div>
     </div>

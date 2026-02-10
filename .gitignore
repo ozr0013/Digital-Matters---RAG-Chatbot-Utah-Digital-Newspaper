@@ -10,6 +10,9 @@ __pycache__/
 *.pyo
 *.pyd
 
+# --- Secrets ---
+.env
+
 # --- System / Editor Files ---
 .DS_Store
 .vscode/

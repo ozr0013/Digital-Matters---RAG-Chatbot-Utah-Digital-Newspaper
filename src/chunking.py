@@ -1,13 +1,15 @@
+"""
+Text Chunking Module
+Splits large text documents into overlapping chunks for embedding.
+"""
+
 import pandas as pd
 import os
 
+
 def chunk_text(text: str, chunk_size: int = 500, overlap: int = 50):
     """Split text into overlapping chunks."""
-<<<<<<< HEAD
-    if not isinstance(text, str) or not text.strip() or text.lower() == "nan": # handle invalid text and NaN and making sure text is a string and not NaN.
-=======
     if not isinstance(text, str) or not text.strip() or text.lower() == "nan":
->>>>>>> e5fdd281ca4b70e8f555130c75b32db346585def
         return []
     chunks = []
     start = 0
@@ -20,11 +22,7 @@ def chunk_text(text: str, chunk_size: int = 500, overlap: int = 50):
 
 def process_csv_streaming(input_csv, output_dir, text_col="ocr_t", chunk_size_chars=500, overlap=50, rows_per_file=100000):
     """Stream through huge CSV, chunk text, and save into multiple smaller CSVs."""
-<<<<<<< HEAD
-    os.makedirs(output_dir, exist_ok=True) # ensure output directory exists, if not create it.
-=======
     os.makedirs(output_dir, exist_ok=True)
->>>>>>> e5fdd281ca4b70e8f555130c75b32db346585def
 
     reader = pd.read_csv(input_csv, chunksize=10000, low_memory=False)
     file_index = 0
@@ -32,11 +30,7 @@ def process_csv_streaming(input_csv, output_dir, text_col="ocr_t", chunk_size_ch
     buffer = []
 
     for batch_i, df in enumerate(reader):
-<<<<<<< HEAD
         print(f"Processing batch {batch_i} ...")
-=======
-        print(f"🔹 Processing batch {batch_i} ...")
->>>>>>> e5fdd281ca4b70e8f555130c75b32db346585def
 
         for _, row in df.iterrows():
             text = str(row.get(text_col, "") or "")
@@ -60,11 +54,7 @@ def process_csv_streaming(input_csv, output_dir, text_col="ocr_t", chunk_size_ch
             if len(buffer) >= rows_per_file:
                 out_file = os.path.join(output_dir, f"udn_chunks_part{file_index}.csv")
                 pd.DataFrame(buffer).to_csv(out_file, index=False)
-<<<<<<< HEAD
-                print(f" Wrote {len(buffer)} chunks → {out_file}")
-=======
-                print(f"✅ Wrote {len(buffer)} chunks → {out_file}")
->>>>>>> e5fdd281ca4b70e8f555130c75b32db346585def
+                print(f"Wrote {len(buffer)} chunks to {out_file}")
                 buffer.clear()
                 file_index += 1
 
@@ -72,15 +62,9 @@ def process_csv_streaming(input_csv, output_dir, text_col="ocr_t", chunk_size_ch
     if buffer:
         out_file = os.path.join(output_dir, f"udn_chunks_part{file_index}.csv")
         pd.DataFrame(buffer).to_csv(out_file, index=False)
-<<<<<<< HEAD
-        print(f" Wrote remaining {len(buffer)} chunks → {out_file}")
+        print(f"Wrote remaining {len(buffer)} chunks to {out_file}")
 
-    print(f" Finished. Total chunks created: {total_chunks}")
-=======
-        print(f"✅ Wrote remaining {len(buffer)} chunks → {out_file}")
-
-    print(f"🎉 Finished. Total chunks created: {total_chunks}")
->>>>>>> e5fdd281ca4b70e8f555130c75b32db346585def
+    print(f"Finished. Total chunks created: {total_chunks}")
 
 
 if __name__ == "__main__":

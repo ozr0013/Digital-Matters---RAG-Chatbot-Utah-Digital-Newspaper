@@ -1,6 +1,6 @@
 /**
- * Chatbot Frontend JavaScript Logic
- * Handles message sending, API communication, and UI interactions
+ * Utah Digital Newspapers Archive - Frontend JavaScript
+ * Handles search queries, API communication, and UI interactions
  */
 
 // Constants
@@ -17,7 +17,7 @@ let isLoading = false;
 let chatHistory = [];
 
 /**
- * Initialize the chatbot
+ * Initialize the application
  */
 document.addEventListener('DOMContentLoaded', () => {
     // Event listeners
@@ -28,40 +28,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     MENU_BUTTON.addEventListener('click', openSidebar);
-    
+
     // Load chat history if available
     loadChatHistory();
 });
 
 /**
- * Send a message to the chatbot
+ * Send a search query to the backend
  */
 async function sendMessage() {
     const message = MESSAGE_INPUT.value.trim();
-    
+
     if (!message || isLoading) {
         return;
     }
-    
+
     // Disable input while processing
     isLoading = true;
     SEND_BUTTON.disabled = true;
     MESSAGE_INPUT.disabled = true;
-    
+
     // Remove welcome container if present
     const welcomeContainer = document.querySelector('.welcome-container');
     if (welcomeContainer) {
         welcomeContainer.remove();
     }
-    
+
     // Add user message to chat
     addMessageToChat('user', message);
     MESSAGE_INPUT.value = '';
-    
+
     // Add to history
     chatHistory.push({ role: 'user', message: message });
     saveChatHistory();
-    
+
     try {
         // Send message to backend
         const response = await fetch(`${API_BASE_URL}/chat`, {
@@ -71,31 +71,31 @@ async function sendMessage() {
             },
             body: JSON.stringify({ message: message })
         });
-        
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const data = await response.json();
-        
+
         if (data.error) {
             addMessageToChat('assistant', `Error: ${data.error}`);
         } else {
             // Add assistant response
             const assistantMessage = formatAssistantResponse(data);
             addMessageToChat('assistant', assistantMessage);
-            
+
             // Add to history
-            chatHistory.push({ 
-                role: 'assistant', 
+            chatHistory.push({
+                role: 'assistant',
                 message: data.answer,
-                sources: data.sources 
+                sources: data.sources
             });
             saveChatHistory();
         }
     } catch (error) {
         console.error('Error:', error);
-        addMessageToChat('assistant', 
+        addMessageToChat('assistant',
             `I encountered an error while processing your request. Please try again. (${error.message})`
         );
     } finally {
@@ -113,10 +113,10 @@ async function sendMessage() {
 function addMessageToChat(role, content) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${role}-message`;
-    
+
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';
-    
+
     if (role === 'assistant') {
         // Content is already formatted HTML
         contentDiv.innerHTML = content;
@@ -124,10 +124,10 @@ function addMessageToChat(role, content) {
         // User message - escape HTML and wrap in paragraph
         contentDiv.innerHTML = `<p>${escapeHtml(content)}</p>`;
     }
-    
+
     messageDiv.appendChild(contentDiv);
     CHAT_MESSAGES_CONTAINER.appendChild(messageDiv);
-    
+
     // Scroll to bottom
     CHAT_MESSAGES_CONTAINER.scrollTop = CHAT_MESSAGES_CONTAINER.scrollHeight;
 }
@@ -136,33 +136,56 @@ function addMessageToChat(role, content) {
  * Format the assistant response with sources
  */
 function formatAssistantResponse(data) {
-    let html = `<p>${escapeHtml(data.answer)}</p>`;
-    
+    // Convert newlines to <br> for LLM multi-line answers
+    const answerHtml = escapeHtml(data.answer).replace(/\n/g, '<br>');
+    let html = `<p>${answerHtml}</p>`;
+
     if (data.sources && data.sources.length > 0) {
         html += '<div class="sources-section">';
-        html += '<h4><i class="fas fa-file-alt"></i> Sources</h4>';
+        html += '<h4>Sources</h4>';
         html += '<div class="sources-list">';
-        
+
         data.sources.forEach((source, index) => {
+            // Build metadata line
+            let metaLine = '';
+            if (source.paper) {
+                metaLine += source.paper;
+            }
+            if (source.date) {
+                metaLine += metaLine ? ` · ${source.date}` : source.date;
+            }
+            if (source.relevance) {
+                metaLine += metaLine ? ` · ${source.relevance} match` : `${source.relevance} match`;
+            }
+
+            // Build link to original article
+            const linkHtml = source.link
+                ? `<a href="${escapeHtml(source.link)}" target="_blank" rel="noopener noreferrer" class="source-link">
+                     <i class="fas fa-external-link-alt"></i> View Original
+                   </a>`
+                : '';
+
             html += `
                 <div class="source-item">
                     <div class="source-number">${index + 1}</div>
                     <div class="source-content">
-                        <h5>${escapeHtml(source.title)}</h5>
-                        <p>${escapeHtml(source.snippet)}</p>
+                        <h5>${escapeHtml(source.title || 'Untitled Article')}</h5>
+                        ${metaLine ? `<p class="source-meta">${escapeHtml(metaLine)}</p>` : ''}
+                        <p>${escapeHtml(source.snippet || '')}</p>
+                        ${linkHtml}
                     </div>
                 </div>
             `;
         });
-        
+
         html += '</div></div>';
     }
-    
+
     return html;
 }
 
 /**
- * Set a query from example buttons
+ * Set a query from example links
  */
 function setQuery(query) {
     MESSAGE_INPUT.value = query;
@@ -192,30 +215,27 @@ function clearChat() {
     localStorage.removeItem('chatHistory');
     CHAT_MESSAGES_CONTAINER.innerHTML = `
         <div class="welcome-container">
-            <div class="welcome-icon">
-                <i class="fas fa-book-open"></i>
-            </div>
-            <h2>Welcome to the Utah Digital Newspapers Chatbot</h2>
-            <p>Ask questions about historical articles from Utah's digital newspaper archive.</p>
-            
+            <h2>Discover Utah's Past</h2>
+            <p class="welcome-description">
+                Search through historical newspaper articles from across Utah.
+                This archive contains <em>thousands of digitized pages</em> spanning
+                over a century of local journalism, community stories, and historical events.
+            </p>
+
             <div class="example-queries">
-                <p class="examples-title">Try asking:</p>
-                <div class="example-buttons">
-                    <button class="example-btn" onclick="setQuery('What articles mention women\'s suffrage in Utah?')">
-                        <i class="fas fa-search"></i>
-                        Women's Suffrage
+                <p class="examples-title">Try searching for</p>
+                <div class="example-links">
+                    <button class="example-link" onclick="setQuery('What articles mention women\\'s suffrage in Utah?')">
+                        Women's suffrage movement in Utah
                     </button>
-                    <button class="example-btn" onclick="setQuery('Find articles about the 1918 Spanish flu in Salt Lake City')">
-                        <i class="fas fa-virus"></i>
-                        Spanish Flu 1918
+                    <button class="example-link" onclick="setQuery('Find articles about the 1918 Spanish flu in Salt Lake City')">
+                        The 1918 Spanish flu in Salt Lake City
                     </button>
-                    <button class="example-btn" onclick="setQuery('Show me mining related articles from the 1900s')">
-                        <i class="fas fa-pickaxe"></i>
-                        Mining Articles
+                    <button class="example-link" onclick="setQuery('Show me mining related articles from the 1900s')">
+                        Early 1900s mining industry coverage
                     </button>
-                    <button class="example-btn" onclick="setQuery('What newspapers covered the first transcontinental railroad?')">
-                        <i class="fas fa-train"></i>
-                        Railroad History
+                    <button class="example-link" onclick="setQuery('What newspapers covered the first transcontinental railroad?')">
+                        Transcontinental railroad completion
                     </button>
                 </div>
             </div>
@@ -243,13 +263,13 @@ function loadChatHistory() {
         const saved = localStorage.getItem('chatHistory');
         if (saved) {
             chatHistory = JSON.parse(saved);
-            
+
             // Rebuild the chat display
             const welcomeContainer = document.querySelector('.welcome-container');
             if (welcomeContainer) {
                 welcomeContainer.remove();
             }
-            
+
             chatHistory.forEach(item => {
                 if (item.role === 'user') {
                     addMessageToChat('user', item.message);
@@ -271,6 +291,7 @@ function loadChatHistory() {
  * Escape HTML special characters
  */
 function escapeHtml(text) {
+    if (!text) return '';
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
