@@ -3,24 +3,26 @@
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-**Author:** Omar Rizwan
-**Manager:** Rebekah Cummings
-**Organization:** Digital Matters, University of Utah
-**Project Type:** Retrieval-Augmented Generation (RAG) Chatbot
-**Goal:** Help students, researchers, and the public explore the Utah Digital Newspapers archive through a conversational AI assistant.
+**Author:** Omar Rizwan  
+**Manager:** Rebekah Cummings  
+**Organization:** Digital Matters, University of Utah  
+**Project Type:** Retrieval-Augmented Generation (RAG) Chatbot  
+**Goal:** Help students, researchers, and the public explore the Utah Digital Newspapers archive.
 
 ---
 
 ## Overview
 
-The **Digital-Matters RAG Chatbot** is an AI-powered assistant that allows users to search and explore the **Utah Digital Newspapers** collection using natural language questions.
+The **Digital-Matters RAG Chatbot** is an AI-powered assistant that allows users to search
+and explore the **Utah Digital Newspapers** collection using natural language questions.
 
 Instead of manually browsing thousands of articles, users can ask:
 
 > "Show me articles about women's suffrage in Utah from the 1920s."
 > "Find newspapers mentioning the 1918 Spanish flu in Salt Lake City."
 
-The chatbot retrieves the most relevant newspaper excerpts using semantic search, then uses an LLM to synthesize an intelligent, cited answer from the sources.
+The chatbot retrieves the most relevant newspaper excerpts using semantic search,
+then uses an LLM to synthesize an intelligent, cited answer from the sources.
 
 ---
 
@@ -34,14 +36,14 @@ The chatbot retrieves the most relevant newspaper excerpts using semantic search
          (Sentence Transformer)
                 |
        +--------v---------+
-       |   FAISS Index     |  <-- IVF+PQ compressed, handles 300M+ vectors
+       |   FAISS Index     |  <-- IVF+PQ (large) or FlatIP (small)
        +--------+---------+
                 |
         (Top-k Retrieved Docs)
                 |
        +--------v---------+
        |   Groq LLM API   |  <-- llama-3.3-70b-versatile (free cloud)
-       +--------+---------+
+       +--------+---------+       or Ollama (local fallback)
                 |
         (Synthesized answer with citations)
                 |
@@ -52,7 +54,7 @@ The chatbot retrieves the most relevant newspaper excerpts using semantic search
 
 **Main components:**
 - **Embeddings:** `all-MiniLM-L6-v2` (384-dim, via sentence-transformers)
-- **Vector Store:** FAISS with IVF+PQ compression + SQLite metadata
+- **Vector Store:** FAISS with IVF+PQ (large dataset) or IndexFlatIP (small dataset) + SQLite metadata
 - **LLM:** Groq API (`llama-3.3-70b-versatile`) or Ollama (local fallback)
 - **Interface:** Flask web application with chat UI
 - **Data:** ~2,999 chunked CSV files with ~300M newspaper article chunks
@@ -63,7 +65,7 @@ The chatbot retrieves the most relevant newspaper excerpts using semantic search
 
 ```bash
 # Clone the repository
-git clone https://github.com/ozr0013/Digital-Matters---RAG-Chatbot-Utah-Digital-Newspaper.git
+git clone https://github.com/ozr0913/Digital-Matters---RAG-Chatbot-Utah-Digital-Newspaper.git
 cd Digital-Matters---RAG-Chatbot-Utah-Digital-Newspaper
 
 # Create and activate virtual environment
@@ -85,10 +87,11 @@ The project expects pre-processed data in the following structure:
 ```
 E:\UDN_Project\
   embeddings\    # .npy files (pre-computed embeddings)
-  chunked\       # .csv files (chunked article text + metadata)
+  chunked\       # .csv chunk files (article text + metadata)
+  faiss_index\   # saved FAISS index + SQLite DB (auto-generated)
 ```
 
-Each CSV contains columns: `id`, `article_title`, `date`, `paper`, `chunk_text`.
+Each CSV contains columns: id, article_title, date, paper, chunk_text.
 
 ### 2. Groq API Key (Free)
 
@@ -99,19 +102,16 @@ Create a `.env` file in the project root:
 GROQ_API_KEY=your_key_here
 ```
 
-### 3. Build the FAISS Index
+### 3. Build the Embeddings and FAISS Index
 
-For quick testing (50 files, ~5M docs):
+For the full dataset (all ~2,999 files):
 ```bash
-python app.py
+python src/build_embeddings_full.py
 ```
-The app auto-builds a quick-start index on first run.
+This generates `.npy` embedding files and a FAISS index. Uses GPU if available (CUDA), falls back to CPU.
+Expect several hours for the full dataset.
 
-For the full dataset (all 2,999 files, ~300M docs):
-```bash
-python -u build_index.py
-```
-This takes ~2-3 hours and creates a compressed IVF+PQ index.
+If no saved index is found, `app.py` will auto-build one from existing `.npy` files on first run.
 
 ### 4. Run the App
 
@@ -126,20 +126,24 @@ Open http://localhost:5000 in your browser.
 ## Project Structure
 
 ```
-app.py                      # Flask web server (main entry point)
-build_index.py              # Full FAISS index builder (run once)
+app.py                          # Flask web server (main entry point)
 src/
-  vectorstore_faiss.py      # FAISS vector store with IVF+PQ + SQLite
-  rag_chatbot_faiss.py      # RAG chatbot with semantic search
-  ollama_processor.py       # LLM processor (Groq cloud / Ollama local)
-  chunking.py               # Text chunking utilities
+  vectorstore_faiss.py          # FAISS vector store with IVF+PQ + SQLite metadata
+  rag_chatbot_faiss.py          # RAG chatbot with semantic search
+  ollama_processor.py           # LLM processor (Groq cloud / Ollama local)
+  build_embeddings_full.py      # Full embedding + FAISS index builder (run once)
+  rag_faiss_test.py             # Integration tests
+  inspect_faiss_index.py        # Utility: inspect index stats
+  fetch_udn.py                  # Utility: fetch data from UDN API
+data/
+  udn_docs_sample.csv           # Small sample dataset for testing
+  udn_docs_sample.json
 static/
-  script.js                 # Frontend chat logic
-  style.css                 # Styling
+  script.js                     # Frontend chat logic
+  style.css                     # Styling
 templates/
-  index.html                # Chat interface
-test_chatbot.py             # Integration tests
-.env                        # API keys (not committed)
+  index.html                    # Chat interface
+.env                            # API keys (not committed)
 ```
 
 ---
@@ -148,7 +152,7 @@ test_chatbot.py             # Integration tests
 
 1. **User asks a question** via the web chat interface
 2. **Sentence Transformer** encodes the query into a 384-dim embedding
-3. **FAISS** finds the top-k most similar newspaper chunks (~300M vectors indexed)
+3. **FAISS** finds the top-k most similar newspaper chunks
 4. **SQLite** looks up metadata (title, date, paper) for matched chunks
 5. **CSV lookup** retrieves full text on-demand (keeps memory usage low)
 6. **Groq LLM** reads the sources and synthesizes an intelligent answer
@@ -179,7 +183,7 @@ POST /api/chat
 
 The system is designed to handle the full UDN archive (~300M chunks):
 
-- **IVF+PQ compression:** Reduces index from ~450GB (flat) to ~15GB
+- **IVF+PQ compression:** Reduces index from ~450GB (flat) to ~15GB for large datasets (>200 files)
+- **IndexFlatIP:** Used for small datasets (<200 files) for exact search
 - **SQLite metadata:** Lightweight storage (~2GB for all metadata)
 - **On-demand text lookup:** Full text loaded from CSV only during search
-- **Quick-start mode:** 50-file subset for development/testing

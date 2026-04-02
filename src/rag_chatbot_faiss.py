@@ -90,7 +90,8 @@ class RAGChatbot:
 
             sources.append({
                 "title": title,
-                "snippet": snippet,
+                "snippet": snippet,   # short version for display
+                "full_text": doc,     # full text for Groq to read
                 "date": date,
                 "paper": paper,
                 "article_id": article_id,

@@ -72,7 +72,7 @@ class LLMProcessor:
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.3,
-                max_tokens=600
+                max_tokens=1024
             )
             return response.choices[0].message.content.strip()
         except Exception as e:
@@ -110,17 +110,18 @@ class LLMProcessor:
         if not sources:
             return result
 
-        # Build context from retrieved documents
+        # Build context from retrieved documents - use full text if available
         context_parts = []
         for i, src in enumerate(sources[:5], 1):
             title = src.get("title", "Untitled")
             paper = src.get("paper", "Unknown")
             date = src.get("date", "Unknown date")
-            snippet = src.get("snippet", "")[:500]
+            # Prefer full_text over snippet so Groq reads the complete excerpt
+            text = src.get("full_text") or src.get("snippet", "")
             context_parts.append(
                 f"Source {i}: {title}\n"
                 f"Paper: {paper} | Date: {date}\n"
-                f"Text: {snippet}\n"
+                f"Text: {text}\n"
             )
 
         context = "\n---\n".join(context_parts)
@@ -128,25 +129,26 @@ class LLMProcessor:
         system = """You are a knowledgeable historical research assistant specializing in Utah history and the Utah Digital Newspapers archive.
 
 Your job:
-1. Read the user's question and the retrieved newspaper excerpts
-2. Synthesize a clear, informative answer based ONLY on what the sources say
-3. Note important details: dates, people, places, events
-4. Acknowledge that text may have OCR errors from scanning old newspapers
-5. If the sources don't clearly answer the question, say so honestly
+1. Carefully read ALL of the newspaper excerpts provided below
+2. Read the user's question
+3. Synthesize a clear, detailed, and informative answer drawing from what you read in the sources
+4. Call out specific details: dates, people, places, events, quotes
+5. Acknowledge OCR scanning errors where text looks garbled - interpret as best you can
+6. If sources don't fully answer the question, say so honestly
 
 Rules:
-- Be concise (3-5 sentences max for the summary)
-- Only state facts found in the sources - do NOT make things up
-- Reference which source(s) support your points
-- If text is garbled from OCR, interpret what you can and note the limitation"""
+- Ground every claim in the sources - do NOT make things up
+- Reference which source number supports each point (e.g. "Source 2 reports...")
+- Write in a clear narrative style, not bullet points
+- Aim for a thorough paragraph-style response"""
 
         prompt = f"""User question: "{query}"
 
-Here are the most relevant newspaper excerpts found in the archive:
+I have retrieved the following {len(sources)} newspaper excerpts from the Utah Digital Newspapers archive. Please read each one carefully:
 
 {context}
 
-Based on these historical sources, provide a clear and informative answer to the user's question:"""
+Now, based on everything you read in these sources, write a thorough and informative answer to the user's question:"""
 
         llm_answer = self._call_llm(system, prompt)
 

@@ -19,7 +19,7 @@ print(f"Found {len(files)} chunk files")
 # Process first 2 files for testing
 for f in files[:2]:
     path = os.path.join(base_dir, f)
-    print(f"🔹 Processing {f} ...")
+    print(f" Processing {f} ...")
     df = pd.read_csv(path)
 
     texts = df['chunk_text'].astype(str).tolist()

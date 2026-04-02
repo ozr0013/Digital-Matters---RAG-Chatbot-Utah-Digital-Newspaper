@@ -12,12 +12,17 @@
         <!-- Header -->
         <div class="chat-header">
             <div class="header-content">
+                <button class="home-button" id="homeButton" title="Go to Home">
+                    <i class="fas fa-home"></i>
+                    <span class="home-label">Home</span>
+                </button>
                 <div class="header-title">
-                    <h1>Utah Digital Newspapers</h1>
+                    <h1>Utah Digital Newspapers Graph Retrieval-Augmented Generation</h1>
                     <p class="tagline">Exploring Utah's Historical Record</p>
                 </div>
-                <button class="menu-button" id="menuButton">
-                    <i class="fas fa-bars"></i>
+                <button class="menu-button" id="menuButton" title="Search History">
+                    <i class="fas fa-history"></i>
+                    <span class="menu-label">History</span>
                 </button>
             </div>
         </div>
@@ -26,8 +31,8 @@
         <div class="chat-main">
             <!-- Welcome Screen / Results Area -->
             <div class="chat-messages" id="chatMessages">
-                <div class="welcome-container">
-                    <h2>Discover Utah's Past</h2>
+                <div class="welcome-container" id="welcomeContainer">
+                    <h2>Discover Utah's Past With Artificial Intelligence</h2>
                     <p class="welcome-description">
                         Search through historical newspaper articles from across Utah.
                         This archive contains <em>thousands of digitized pages</em> spanning
@@ -51,6 +56,10 @@
                             </button>
                         </div>
                     </div>
+
+                    <p class="built-by">
+                        RAG system developed by <strong>Omar Rizwan</strong> &mdash; Software Engineer &amp; University of Utah Student
+                    </p>
                 </div>
             </div>
 
@@ -73,35 +82,35 @@
         </div>
     </div>
 
-    <!-- Sidebar for Mobile Menu -->
+    <!-- Sidebar: Search History -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h3>About the Archive</h3>
+            <h3>Search History</h3>
             <button class="close-button" onclick="closeSidebar()">
                 <i class="fas fa-times"></i>
             </button>
         </div>
         <div class="sidebar-content">
-            <div class="sidebar-section">
-                <h4>Utah Digital Newspapers</h4>
-                <p>Explore Utah's rich historical record through digitized newspaper archives using AI-powered semantic search.</p>
+            <button class="new-chat-button" onclick="goHome(); closeSidebar();">
+                <i class="fas fa-plus"></i> New Search
+            </button>
+
+            <div class="sessions-section">
+                <p class="sessions-label">Recent Searches</p>
+                <div id="sessionsList" class="sessions-list">
+                    <p class="no-sessions">No previous searches yet</p>
+                </div>
             </div>
-            <div class="sidebar-section">
-                <h4>Features</h4>
-                <ul>
-                    <li>Natural language search</li>
-                    <li>Semantic document retrieval</li>
-                    <li>Source citations</li>
-                    <li>Historical context</li>
-                </ul>
+
+            <div class="sidebar-about">
+                <div class="sidebar-section">
+                    <h4>Provided by</h4>
+                    <p><strong>Digital Matters</strong><br>University of Utah</p>
+                </div>
             </div>
-            <div class="sidebar-section">
-                <h4>Provided by</h4>
-                <p><strong>Digital Matters</strong></p>
-                <p>University of Utah</p>
-            </div>
-            <button class="clear-button" onclick="clearChat()">
-                <i class="fas fa-trash"></i> Clear Search History
+
+            <button class="clear-button" onclick="clearAllSessions()">
+                <i class="fas fa-trash"></i> Clear All History
             </button>
         </div>
     </div>

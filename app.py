@@ -39,7 +39,7 @@ INDEX_EXISTS = os.path.exists(INDEX_PATH)
 if not INDEX_EXISTS:
     INDEX_PATH = os.path.join(os.path.dirname(INDEX_PATH) or ".", "udn_quick.index")
     INDEX_EXISTS = os.path.exists(INDEX_PATH)
-MAX_FILES = None if INDEX_EXISTS else 50
+MAX_FILES = None  # Always load all files - no artificial limit
 
 # Initialize chatbot
 chatbot = None
